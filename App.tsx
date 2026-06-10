@@ -5,7 +5,7 @@ import RootNavigator from './src/navigations/RootNavigator'
 const App = () => {
   return (
     <SafeAreaProvider>
-      <StatusBar />
+      <StatusBar backgroundColor="white" />
       <RootNavigator />
     </SafeAreaProvider>
   )

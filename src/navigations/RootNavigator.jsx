@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import AppNavigator from './AuthNavigator';
+import AppNavigator from './AppNavigator';
 import AuthNavigator from './AuthNavigator';
 
 const RootNavigator = () => {
@@ -10,10 +10,10 @@ const RootNavigator = () => {
     <NavigationContainer>
       {isLoggedIn ? (
         // Render authenticated screens
-        <AuthNavigator />
+        <AppNavigator />
       ) : (
         // Render authentication screens
-        <AppNavigator />
+        <AuthNavigator />
       )}
     </NavigationContainer>
   );
