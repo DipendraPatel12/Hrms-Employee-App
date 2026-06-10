@@ -13,9 +13,29 @@ import Container from '../../../components/layout/Container';
 import typography from '../../../theme/typography';
 
 import Button from '../../../components/common/Button';
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { forgotPasswordSchema } from '../../../validations/auth/forgotPassword.schema';
 import { useNavigation } from '@react-navigation/native';
 const ForgotPassword = () => {
   const navigation = useNavigation();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: '',
+    },
+  });
+
+  const onSubmit = data => {
+    console.log('Login Data:', data);
+    navigation.navigate('VerifyOtp');
+
+    // Call Login API Here
+  };
   return (
     <Screen>
       <Container>
@@ -35,32 +55,51 @@ const ForgotPassword = () => {
           >
             Forgot Password ?
           </Text>
-          <Text style={{ color: 'black' }}>
+          <Text style={{ color: colors.textSecondary }}>
             Enter your Email Address to receive a verification code.
           </Text>
         </View>
 
         <View style={{ marginHorizontal: rw(5), marginTop: rh(2), gap: rh(4) }}>
           <View style={{ gap: rh(1) }}>
-            <Text>Email Address</Text>
-            <TextInput
-              placeholder="Enter Email Address"
-              placeholderTextColor="grey"
-              style={{
-                paddingHorizontal: rw(3),
-                paddingVertical: rh(2),
-                borderColor: 'black',
-                borderRadius: 10,
-                backgroundColor: 'white',
-                color: 'black',
-              }}
-            ></TextInput>
+            <Text style={{ fontWeight: '500' }}>Email Address</Text>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder="Enter Email Address"
+                  placeholderTextColor="grey"
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={{
+                    paddingHorizontal: rw(3),
+                    paddingVertical: rh(2),
+                    borderWidth: 1,
+                    borderColor: errors.email ? colors.danger : colors.border,
+                    borderRadius: 10,
+                    backgroundColor: colors.white,
+                    color: colors.black,
+                  }}
+                />
+              )}
+            />
+
+            {errors.email && (
+              <Text
+                style={{
+                  color: colors.danger,
+                  fontSize: typography.caption,
+                }}
+              >
+                {errors.email.message}
+              </Text>
+            )}
           </View>
           <View>
-            <Button
-              title="Send OTP"
-              onPress={() => navigation.navigate('ResetPassword')}
-            />
+            <Button title="Send OTP" onPress={handleSubmit(onSubmit)} />
           </View>
         </View>
       </Container>

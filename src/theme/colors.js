@@ -1,7 +1,7 @@
 // src/theme/colors.ts
 
 export default  colors = {
-    primary: "#2563EB",
+    primary: "#002C8C",
     secondary: "#10B981",
 
     success: "#22C55E",

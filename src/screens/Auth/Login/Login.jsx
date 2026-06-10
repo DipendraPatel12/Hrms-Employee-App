@@ -14,8 +14,30 @@ import typography from '../../../theme/typography';
 
 import Button from '../../../components/common/Button';
 import { useNavigation } from '@react-navigation/native';
+
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import { loginSchema } from '../../../validations/auth/login.schema';
 const Login = () => {
   const navigation = useNavigation();
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = data => {
+    console.log('Login Data:', data);
+
+    // Call Login API Here
+  };
   return (
     <Screen>
       <Container>
@@ -35,49 +57,97 @@ const Login = () => {
           >
             Welcome
           </Text>
-          <Text style={{ color: 'black' }}>
+          <Text style={{ color: colors.textSecondary }}>
             Please sign in to your employee portal.
           </Text>
         </View>
 
         <View style={{ marginHorizontal: rw(5), marginTop: rh(2), gap: rh(2) }}>
           <View style={{ gap: rh(1) }}>
-            <Text>Email</Text>
-            <TextInput
-              placeholder="Enter Email Address"
-              placeholderTextColor="grey"
-              style={{
-                paddingHorizontal: rw(3),
-                paddingVertical: rh(2),
-                borderColor: 'black',
-                borderRadius: 10,
-                backgroundColor: 'white',
-                color: 'black',
-              }}
-            ></TextInput>
+            <Text style={{ fontWeight: '500' }}>Email</Text>
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder="Enter Email Address"
+                  placeholderTextColor="grey"
+                  value={value}
+                  onChangeText={onChange}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  style={{
+                    paddingHorizontal: rw(3),
+                    paddingVertical: rh(2),
+                    borderWidth: 1,
+                    borderColor: errors.email ? colors.danger : colors.border,
+                    borderRadius: 10,
+                    backgroundColor: colors.white,
+                    color: colors.black,
+                  }}
+                />
+              )}
+            />
+
+            {errors.email && (
+              <Text
+                style={{
+                  color: colors.danger,
+                  fontSize: typography.caption,
+                }}
+              >
+                {errors.email.message}
+              </Text>
+            )}
           </View>
 
           <View style={{ gap: rh(1) }}>
-            <Text>Password</Text>
-            <TextInput
-              placeholder="Enter Password"
-              placeholderTextColor="grey"
-              style={{
-                paddingHorizontal: rw(3),
-                paddingVertical: rh(2),
-                borderColor: 'black',
-                borderRadius: 10,
-                backgroundColor: 'white',
-                color: 'black',
-              }}
-            ></TextInput>
+            <Text style={{ fontWeight: '500' }}>Password</Text>
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  placeholder="Enter Password"
+                  placeholderTextColor="grey"
+                  value={value}
+                  onChangeText={onChange}
+                  style={{
+                    paddingHorizontal: rw(3),
+                    paddingVertical: rh(2),
+                    borderWidth: 1,
+                    borderColor: errors.password
+                      ? colors.danger
+                      : colors.border,
+                    borderRadius: 10,
+                    backgroundColor: colors.white,
+                    color: colors.black,
+                  }}
+                />
+              )}
+            />
+
+            {errors.password && (
+              <Text
+                style={{
+                  color: colors.danger,
+                  fontSize: typography.caption,
+                }}
+              >
+                {errors.password.message}
+              </Text>
+            )}
           </View>
         </View>
 
         <View style={{ marginVertical: rh(3), marginHorizontal: rw(5) }}>
           <TouchableOpacity>
             <Text
-              style={{ textAlign: 'right', color: 'blue' }}
+              style={{
+                textAlign: 'right',
+                color: colors.primary,
+                fontWeight: '500',
+              }}
               onPress={() => navigation.navigate('ForgotPassword')}
             >
               Forgot Password ?
@@ -86,7 +156,7 @@ const Login = () => {
         </View>
 
         <View style={{ marginHorizontal: rw(5) }}>
-          <Button title="log in" />
+          <Button title="log in" onPress={handleSubmit(onSubmit)} />
         </View>
       </Container>
     </Screen>
