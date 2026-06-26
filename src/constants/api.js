@@ -1,5 +1,6 @@
+import Config from "react-native-config";
 export const API_ENDPOINTS = {
-    BASE_URL: import.meta.env.VITE_BASE_URL,
+    BASE_URL: Config.API_BASE_URL,
 
     // Authentication Endpoints
     AUTH: {

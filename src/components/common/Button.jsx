@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
 
   danger: {
-    backgroundColor: colors.error,
+    backgroundColor: colors.danger,
   },
 
   outline: {
