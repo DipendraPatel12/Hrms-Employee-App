@@ -14,6 +14,9 @@ import typography from '../../../theme/typography';
 
 import Button from '../../../components/common/Button';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../../../redux/slice/auth.slice';
+import Toast from 'react-native-toast-message';
 
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -21,6 +24,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema } from '../../../validations/auth/login.schema';
 const Login = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
+
   const {
     control,
     handleSubmit,
@@ -33,10 +39,21 @@ const Login = () => {
     },
   });
 
-  const onSubmit = data => {
-    console.log('Login Data:', data);
-
-    // Call Login API Here
+  const onSubmit = async data => {
+    try {
+      await dispatch(loginUser(data)).unwrap();
+      Toast.show({
+        type: 'success',
+        text1: 'Login Successful',
+        text2: 'Welcome back!',
+      });
+    } catch (err) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: err || 'Please check your credentials',
+      });
+    }
   };
   return (
     <Screen>
@@ -155,8 +172,10 @@ const Login = () => {
           </TouchableOpacity>
         </View>
 
+
+
         <View style={{ marginHorizontal: rw(5) }}>
-          <Button title="log in" onPress={handleSubmit(onSubmit)} />
+          <Button title="log in" loading={loading} onPress={handleSubmit(onSubmit)} />
         </View>
       </Container>
     </Screen>

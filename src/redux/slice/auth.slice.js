@@ -2,6 +2,7 @@ import {
   createSlice,
   createAsyncThunk,
 } from "@reduxjs/toolkit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import {
   signupApi,
@@ -56,8 +57,8 @@ export const loginUser = createAsyncThunk(
       const user = res?.data?.user || {};
 
       // Persist the token first so the employee lookup below is authorized
-      // (the axios interceptor reads the token from localStorage).
-      if (token) localStorage.setItem("token", token);
+      // (the axios interceptor reads the token from AsyncStorage).
+      if (token) await AsyncStorage.setItem("token", token);
 
       const layoutRole = resolveLayoutRole(user);
 
@@ -69,8 +70,9 @@ export const loginUser = createAsyncThunk(
         },
       };
     } catch (error) {
+      console.log("LOGIN ERROR:", error.message, error.response?.data);
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || "Login failed"
+        error.response?.data?.message || error.message || "Login failed"
       );
     }
   }
@@ -119,13 +121,30 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
-const storedUser = localStorage.getItem("user");
-const storedToken = localStorage.getItem("token");
+export const initializeAuth = createAsyncThunk(
+  "auth/initializeAuth",
+  async (_, thunkAPI) => {
+    try {
+      const storedUser = await AsyncStorage.getItem("user");
+      const storedToken = await AsyncStorage.getItem("token");
+      if (storedToken) {
+        return {
+          user: storedUser ? JSON.parse(storedUser) : null,
+          token: storedToken
+        };
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+);
 
 const initialState = {
-  user: storedUser ? JSON.parse(storedUser) : null,
-  token: storedToken || null,
-  isAuthenticated: !!storedToken,
+  user: null,
+  token: null,
+  isAuthenticated: false,
+  isInitialized: false,
   loading: false,
   error: null,
 };
@@ -140,10 +159,10 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
 
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      AsyncStorage.removeItem("user");
+      AsyncStorage.removeItem("token");
       // reset the project dashboard's selected project on logout
-      localStorage.removeItem("projectDashboardSelection");
+      AsyncStorage.removeItem("projectDashboardSelection");
     },
 
   },
@@ -182,15 +201,14 @@ const authSlice = createSlice({
         state.token = action.payload.data.access_token;
         state.isAuthenticated = true;
 
-
-        localStorage.setItem("user", JSON.stringify(action.payload.data.user));
-        localStorage.setItem("token", action.payload.data.access_token);
+        AsyncStorage.setItem("user", JSON.stringify(action.payload.data.user));
+        AsyncStorage.setItem("token", action.payload.data.access_token);
       })
 
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = true;
-        state.isAuthenticated = false
+        state.error = action.payload || "Login failed";
+        state.isAuthenticated = false;
       })
       .addCase(forgetPassword.pending, (state) => {
         state.loading = true;
@@ -227,6 +245,14 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.isInitialized = true;
+        if (action.payload) {
+          state.user = action.payload.user;
+          state.token = action.payload.token;
+          state.isAuthenticated = true;
+        }
+      });
 
   }
 

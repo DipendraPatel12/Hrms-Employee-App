@@ -1,7 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
+import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector, useDispatch } from 'react-redux';
+import { initializeAuth } from '../redux/slice/auth.slice';
 import AppNavigator from './AppNavigator';
 import AuthNavigator from './AuthNavigator';
 import AttendanceHistory from '../screens/Attendance/AttendanceHistory/AttendanceHistory';
@@ -355,10 +357,24 @@ const MainStack = () => (
 );
 
 const RootNavigator = () => {
-  const isLoggedIn = true; // Replace with actual authentication logic
+  const dispatch = useDispatch();
+  const { isAuthenticated, isInitialized } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, [dispatch]);
+
+  if (!isInitialized) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
-      {isLoggedIn ? (
+      {isAuthenticated ? (
         // Render authenticated screens
         <MainStack />
       ) : (
