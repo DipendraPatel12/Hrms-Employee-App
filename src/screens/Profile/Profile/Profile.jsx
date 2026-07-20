@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../redux/slice/auth.slice';
+import Toast from 'react-native-toast-message';
 import colors from '../../../theme/colors';
 import { rh, rw, rf } from '../../../utils/responsive';
 
@@ -16,6 +19,17 @@ const MenuItem = ({ title, onPress, icon }) => (
 
 const Profile = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const handleLogout = () => {
+    dispatch(logout());
+    Toast.show({
+      type: 'success',
+      text1: 'Logged Out',
+      text2: 'You have been successfully logged out.',
+      position: 'top',
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -54,7 +68,7 @@ const Profile = () => {
         </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutIcon}>🚪</Text>
           <Text style={styles.logoutText}>LOG OUT</Text>
         </TouchableOpacity>

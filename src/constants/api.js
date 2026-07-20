@@ -1,10 +1,10 @@
 import Config from "react-native-config";
 
-// Fallback to 10.0.2.2 if react-native-config hasn't rebuilt with the new .env
-const envBaseUrl = Config.API_BASE_URL || "http://localhost:3001/hrms/v1";
+// Fallback to 10.82.146.161 if react-native-config hasn't rebuilt with the new .env
+const envBaseUrl = Config.API_BASE_URL || "http://10.82.146.161:3001/hrms/v1";
 // Force the IP for now to bypass Android cache issues
 export const API_ENDPOINTS = {
-    BASE_URL: "http://localhost:3001/hrms/v1",
+    BASE_URL: "http://10.82.146.161:3001/hrms/v1",
 
     // Authentication Endpoints
     AUTH: {
@@ -12,7 +12,7 @@ export const API_ENDPOINTS = {
         SIGNUP: "/auth/signup",
         LOGOUT: "/auth/logout",
         FORGOT_PASSWORD: "/auth/forgot-password",
-        VERIFY_OTP: "/rrauth/forgot-password/verify-otp",
+        VERIFY_OTP: "/auth/forgot-password/verify-otp",
         RESET_PASSWORD: "/auth/forgot-password/reset",
     },
 

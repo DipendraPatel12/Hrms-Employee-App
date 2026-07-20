@@ -15,10 +15,17 @@ import typography from '../../../theme/typography';
 import Button from '../../../components/common/Button';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { resetPasswordSchema } from '../../../validations/auth/resetPassword.schema';
+import { useDispatch, useSelector } from 'react-redux';
+import { resetPassword } from '../../../redux/slice/auth.slice';
+import Toast from 'react-native-toast-message';
+
 const ResetPassword = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const {
     control,
     handleSubmit,
@@ -32,10 +39,28 @@ const ResetPassword = () => {
   });
 
   const onSubmit = data => {
-    console.log('Login Data:', data);
-    navigation.navigate('VerifyOtp');
+    const { reset_token } = route.params || {};
 
-    // Call Login API Here
+    if (!reset_token) {
+      Toast.show({ type: 'error', text1: 'Error', text2: 'Invalid or missing reset token.' });
+      return;
+    }
+
+    dispatch(
+      resetPassword({
+        reset_token,
+        new_password: data.new_password,
+        confirm_new_password: data.confirm_password,
+      })
+    )
+      .unwrap()
+      .then(() => {
+        Toast.show({ type: 'success', text1: 'Success', text2: 'Password reset successfully!' });
+        navigation.navigate('Login');
+      })
+      .catch((err) => {
+        Toast.show({ type: 'error', text1: 'Error', text2: err });
+      });
   };
   return (
     <Screen>
@@ -142,7 +167,7 @@ const ResetPassword = () => {
         </View>
 
         <View style={{ marginHorizontal: rw(5), marginVertical: rh(4) }}>
-          <Button title="Reset Password" onPress={handleSubmit(onSubmit)} />
+          <Button title="Reset Password" loading={loading} onPress={handleSubmit(onSubmit)} />
         </View>
       </Container>
     </Screen>

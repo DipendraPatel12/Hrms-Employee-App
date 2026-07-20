@@ -12,21 +12,6 @@ import {
   resetPasswordApi,
 } from "../../services/auth.services";
 
-// Access levels that should see the full admin console.
-const ADMIN_ACCESS_LEVELS = ["ADMIN", "SUB_ADMIN"];
-
-// Decide which layout/section a logged-in user belongs to, using the
-// access_level returned in the login response.
-// - No access_level / no employeeId => company owner/employer => ADMIN
-// - access_level ADMIN/SUB_ADMIN => ADMIN
-// - Otherwise (EMPLOYEE / GENERAL_EMPLOYEE) => EMPLOYEE
-const resolveLayoutRole = (user) => {
-  if (!user?.employeeId) return "ADMIN";
-  return ADMIN_ACCESS_LEVELS.includes(user?.access_level)
-    ? "ADMIN"
-    : "EMPLOYEE";
-};
-
 // SIGNUP
 
 export const signupUser = createAsyncThunk(
@@ -54,21 +39,12 @@ export const loginUser = createAsyncThunk(
       const res = await loginApi(userData);
 
       const token = res?.data?.access_token;
-      const user = res?.data?.user || {};
 
       // Persist the token first so the employee lookup below is authorized
       // (the axios interceptor reads the token from AsyncStorage).
       if (token) await AsyncStorage.setItem("token", token);
 
-      const layoutRole = resolveLayoutRole(user);
-
-      return {
-        ...res,
-        data: {
-          ...res.data,
-          user: { ...user, layoutRole },
-        },
-      };
+      return res;
     } catch (error) {
       console.log("LOGIN ERROR:", error.message, error.response?.data);
       return thunkAPI.rejectWithValue(

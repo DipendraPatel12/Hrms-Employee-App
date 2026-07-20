@@ -17,8 +17,14 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { forgotPasswordSchema } from '../../../validations/auth/forgotPassword.schema';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { forgetPassword } from '../../../redux/slice/auth.slice';
+import Toast from 'react-native-toast-message';
+
 const ForgotPassword = () => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.auth);
   const {
     control,
     handleSubmit,
@@ -31,10 +37,15 @@ const ForgotPassword = () => {
   });
 
   const onSubmit = data => {
-    console.log('Login Data:', data);
-    navigation.navigate('VerifyOtp');
-
-    // Call Login API Here
+    dispatch(forgetPassword(data))
+      .unwrap()
+      .then(() => {
+        Toast.show({ type: 'success', text1: 'Success', text2: 'OTP sent to your email.' });
+        navigation.navigate('VerifyOtp', { email: data.email });
+      })
+      .catch(err => {
+        Toast.show({ type: 'error', text1: 'Error', text2: err });
+      });
   };
   return (
     <Screen>
@@ -99,7 +110,7 @@ const ForgotPassword = () => {
             )}
           </View>
           <View>
-            <Button title="Send OTP" onPress={handleSubmit(onSubmit)} />
+            <Button title="Send OTP" loading={loading} onPress={handleSubmit(onSubmit)} />
           </View>
         </View>
       </Container>

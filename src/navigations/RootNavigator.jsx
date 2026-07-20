@@ -26,6 +26,7 @@ import AssignedProject from '../screens/Profile/AssignedProject/AssignedProject'
 import PastProjectDetail from '../screens/Profile/PastProjectDetail/PastProjectDetail';
 import Document from '../screens/Profile/Document/Document';
 import UploadDocument from '../screens/Profile/UploadDocument/UploadDocument';
+import SecureAttendanceVerification from '../screens/Attendance/SecureAttendanceVerification/SecureAttendanceVerification';
 import colors from '../theme/colors';
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +44,22 @@ const MainStack = () => (
         headerStyle: {
           borderBottomWidth: 1,
           borderBottomColor: colors.primary,
+        },
+        headerTitleStyle: {
+          fontWeight: '700',
+        }
+      }} 
+    />
+    <Stack.Screen 
+      name="SecureAttendanceVerification" 
+      component={SecureAttendanceVerification} 
+      options={{ 
+        headerShown: true, 
+        title: 'Secure Attendance Verification',
+        headerTitleAlign: 'center',
+        headerStyle: {
+          borderBottomWidth: 1,
+          borderBottomColor: '#E5E7EB',
         },
         headerTitleStyle: {
           fontWeight: '700',

@@ -40,7 +40,7 @@ const Home = () => {
           </View>
         </View>
 
-        <Button title="Check-In Now" onPress={() => { }} style={styles.checkInButton} />
+        <Button title="Check-In Now" onPress={() => navigation.navigate('SecureAttendanceVerification')} style={styles.checkInButton} />
       </View>
 
       {/* Current Project */}

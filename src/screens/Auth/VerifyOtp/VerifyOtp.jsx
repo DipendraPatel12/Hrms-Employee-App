@@ -4,6 +4,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Alert,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { rf, rh, rw } from '../../../utils/responsive';
@@ -13,10 +14,15 @@ import Container from '../../../components/layout/Container';
 import typography from '../../../theme/typography';
 
 import Button from '../../../components/common/Button';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { verifyOtp as verifyOtpAction } from '../../../redux/slice/auth.slice';
+import Toast from 'react-native-toast-message';
+
 const VerifyOtp = () => {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [seconds, setSeconds] = useState(59);
+  const { loading } = useSelector((state) => state.auth);
   const inputRefs = useRef([]);
 
   useEffect(() => {
@@ -30,6 +36,9 @@ const VerifyOtp = () => {
   }, [seconds]);
 
   const navigation = useNavigation();
+  const route = useRoute();
+  const dispatch = useDispatch();
+  const { email } = route.params || {};
 
   const handleChange = (text, index) => {
     if (!/^\d*$/.test(text)) return;
@@ -57,9 +66,15 @@ const VerifyOtp = () => {
       return;
     }
 
-    console.log('OTP:', enteredOtp);
-
-    navigation.navigate('ResetPassword');
+    dispatch(verifyOtpAction({ email, otp: enteredOtp }))
+      .unwrap()
+      .then((res) => {
+        Toast.show({ type: 'success', text1: 'Success', text2: 'OTP Verified successfully.' });
+        navigation.navigate('ResetPassword', { reset_token: res.data.reset_token });
+      })
+      .catch((err) => {
+        Toast.show({ type: 'error', text1: 'Error', text2: err });
+      });
   };
 
   return (
@@ -82,7 +97,7 @@ const VerifyOtp = () => {
             Verify OTP
           </Text>
           <Text style={{ color: colors.textSecondary }}>
-            We've sent a 6-digit verification code to shivam******@gmail.com
+            We've sent a 6-digit verification code to {email || 'your email'}
           </Text>
         </View>
 
@@ -104,7 +119,8 @@ const VerifyOtp = () => {
           <View>
             <Button
               title="Verify OTP"
-              onPress={() => navigation.navigate('ResetPassword')}
+              loading={loading}
+              onPress={verifyOtp}
             />
           </View>
         </View>
